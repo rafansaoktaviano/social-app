@@ -1,74 +1,196 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  SafeAreaView,
+  StatusBar,
+  TouchableWithoutFeedback,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { styles } from "@/styles/feed.styles";
+import { COLORS } from "@/constants/theme";
+import {
+  useFonts,
+  JetBrainsMono_500Medium,
+} from "@expo-google-fonts/jetbrains-mono";
+import axios from "axios";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { api } from "@/convex/_generated/api";
+import Loader from "@/components/Loader";
+import Posts from "@/components/Posts";
+import Stories from "@/components/Stories";
+import { useQuery } from "convex/react";
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetFlashList,
+  BottomSheetFooter,
+  useBottomSheet,
+} from "@gorhom/bottom-sheet";
+import Comments from "@/components/Comments";
+import { useNavigation } from "expo-router";
+import { useTabVisibility } from "@/context/TabVisibilityContext";
+import { Portal } from "@gorhom/portal";
+import CustomFooter from "@/components/CustomFooter";
+import CustomFooterTest from "@/components/CustomFooterTest";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+type UserType = {
+  picture: { large: string };
+};
 
-export default function HomeScreen() {
+export default function Index() {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const { signOut, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const [users, setUsers] = useState<UserType[] | any>([]);
+  const [postId, setPostId] = useState<any | null>(null);
+  const [isShowComment, setIsShowComment] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const post = useQuery(api?.posts?.getPosts, {});
+
+  const [fontsLoaded] = useFonts({
+    JetBrainsMono_500Medium,
+  });
+  
+
+  const fetchRandomUser = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("https://randomuser.me/api/?results=20");
+      const userData = response.data.results;
+      const randomImage = `https://picsum.photos/200?random=${Math.floor(Math.random() * 1000)}`;
+
+      const modifiedUsers = [
+        {
+          name: { first: "You" },
+          picture: { large: randomImage },
+        },
+        ...userData,
+      ];
+
+      setUsers(modifiedUsers as UserType[]);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error fetching user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetchRandomUser();
+    }
+
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+    }
+  }, []);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    if (index !== 0) {
+    } else {
+      if (bottomSheetRef.current) {
+        bottomSheetRef.current.close();
+      }
+    }
+  }, []);
+
+  const openBottomSheet = (postId: any) => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.snapToIndex(1);
+      setPostId(postId);
+      setIsShowComment(true);
+    }
+  };
+  const closeBottomSheet = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+      setIsShowComment(false);
+    }
+  };
+
+  if (post === undefined) return <Loader />;
+  if (isLoading === true) return <Loader />;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "#000",
+        opacity: isShowComment ? 0.9 : 1,
+      }}
+    >
+      <StatusBar barStyle={"light-content"} />
+      <View>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTittle}>social</Text>
+          <TouchableOpacity onPress={() => signOut()}>
+            <Ionicons name="exit-outline" color={COLORS.white} size={18} />
+          </TouchableOpacity>
+        </View>
+
+        {/* STORIES SECTION */}
+        <View style={styles.storiesContainer}>
+          <Stories users={users} />
+        </View>
+        {/* END STORIES SECTION */}
+
+        {/* POST SECTION */}
+        {post?.length === 0 ? (
+          <NoPostsFound />
+        ) : (
+          <Posts post={post} user={user} openBottomSheet={openBottomSheet} />
+        )}
+        {/* END POST SECTION */}
+        {/* <Modal visible={isShowComment} transparent={true}> */}
+        <Portal>
+          <BottomSheet
+            ref={bottomSheetRef}
+            onChange={handleSheetChanges}
+            index={-1}
+            snapPoints={["70%"]}
+            backgroundStyle={{
+              backgroundColor: COLORS.background,
+            }}
+            enableContentPanningGesture={false}
+            handleIndicatorStyle={{ backgroundColor: COLORS.white }}
+            footerComponent={(props) => (
+              <CustomFooter {...props} postId={postId || ""} />
+            )}
+            enablePanDownToClose={true}
+            detached={true}
+            topInset={50}
+            onClose={() => setIsShowComment(false)}
+          >
+            <Text style={styles.headerComments}>Comments</Text>
+            <BottomSheetView style={{ flex: 1 }}>
+              {postId ? <Comments postId={postId} /> : null}
+            </BottomSheetView>
+          </BottomSheet>
+        </Portal>
+      </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+const NoPostsFound = () => {
+  return (
+    <View
+      style={{
+        height: 600,
+        backgroundColor: COLORS.background,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text style={{ fontSize: 20, color: COLORS.primary }}>No posts yet</Text>
+    </View>
+  );
+};

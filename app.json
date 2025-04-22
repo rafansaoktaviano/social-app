@@ -6,10 +6,18 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
+    "deepLinking": true,
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.social-app",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "NSUserTrackingUsageDescription": "This identifier will be used to send you notifications"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +44,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fdfcb6ab-6ef3-4d14-b22f-275889e0e6a6"
+      },
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "rafansaoktaviano"
   }
 }

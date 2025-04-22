@@ -1,43 +1,69 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Tabs } from "expo-router";
+import React, { Component } from "react";
+import { Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/constants/theme";
+import { useTabVisibility } from "@/context/TabVisibilityContext";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarShowLabel: false,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.grey,
+        tabBarStyle: {
+          backgroundColor: "black",
+          borderTopWidth: 0,
+          position: "absolute",
+          elevation: 0,
+          height: 60,
+          paddingBottom: 8,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
+        
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="home" color={color} size={size} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="bookmarks"
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="bookmarks" color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="create"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="add-circle" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="heart" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="person" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
