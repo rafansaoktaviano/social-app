@@ -41,7 +41,7 @@ export default function login() {
       {/* BRAND LOGO */}
       <View style={styles.brandSection}>
         <View style={styles.logoContainer}>
-          <Ionicons name="leaf" size={32} color={COLORS.primary} />
+          <Ionicons name="share-social" size={32} color={COLORS.primary} />
         </View>
         <Text style={styles.appName}>social</Text>
         <Text style={styles.tagline}>don't miss anything</Text>

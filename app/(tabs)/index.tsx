@@ -38,6 +38,7 @@ import { useTabVisibility } from "@/context/TabVisibilityContext";
 import { Portal } from "@gorhom/portal";
 import CustomFooter from "@/components/CustomFooter";
 import CustomFooterTest from "@/components/CustomFooterTest";
+import { users } from "@/utils/usersData";
 
 type UserType = {
   picture: { large: string };
@@ -47,7 +48,6 @@ export default function Index() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { signOut, isSignedIn } = useAuth();
   const { user } = useUser();
-  const [users, setUsers] = useState<UserType[] | any>([]);
   const [postId, setPostId] = useState<any | null>(null);
   const [isShowComment, setIsShowComment] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,35 +57,40 @@ export default function Index() {
   const [fontsLoaded] = useFonts({
     JetBrainsMono_500Medium,
   });
+
+  
   
 
-  const fetchRandomUser = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get("https://randomuser.me/api/?results=20");
-      const userData = response.data.results;
-      const randomImage = `https://picsum.photos/200?random=${Math.floor(Math.random() * 1000)}`;
+  // const fetchRandomUser = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     console.time("test");
+      
+  //     const response = await axios.get("https://randomuser.me/api/?results=10");
+  //     console.timeEnd("test")
+  //     const userData = response.data.results;
+  //     const randomImage = `https://picsum.photos/200?random=${Math.floor(Math.random() * 1000)}`;
+  //     console.time("test2")
+  //     console.timeEnd("test2")
+  //     const modifiedUsers = [
+  //       {
+  //         name: { first: "You" },
+  //         picture: { large: randomImage },
+  //       },
+  //       ...userData,
+  //     ];
 
-      const modifiedUsers = [
-        {
-          name: { first: "You" },
-          picture: { large: randomImage },
-        },
-        ...userData,
-      ];
-
-      setUsers(modifiedUsers as UserType[]);
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error fetching user:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     setUsers(modifiedUsers as UserType[]);
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (isSignedIn) {
-      fetchRandomUser();
+      // fetchRandomUser();
     }
 
     if (bottomSheetRef.current) {
@@ -94,11 +99,8 @@ export default function Index() {
   }, []);
 
   const handleSheetChanges = useCallback((index: number) => {
-    if (index !== 0) {
-    } else {
-      if (bottomSheetRef.current) {
-        bottomSheetRef.current.close();
-      }
+    if (index === 0) {
+      bottomSheetRef.current?.close();
     }
   }, []);
 
@@ -117,7 +119,6 @@ export default function Index() {
   };
 
   if (post === undefined) return <Loader />;
-  if (isLoading === true) return <Loader />;
 
   return (
     <SafeAreaView
@@ -138,7 +139,7 @@ export default function Index() {
 
         {/* STORIES SECTION */}
         <View style={styles.storiesContainer}>
-          <Stories users={users} />
+          <Stories isLoading={isLoading} users={users} />
         </View>
         {/* END STORIES SECTION */}
 

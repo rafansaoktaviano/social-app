@@ -29,7 +29,7 @@ export default function Notifications() {
       <StatusBar barStyle={"light-content"} />
       <View> 
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTittle}>Notifications</Text>
+          <Text style={styles.headerTittle}>notifications</Text>
         </View>
 
         {notifications === undefined ? (

@@ -43,20 +43,6 @@ export default function AuthLayout() {
   }, []);
 
   useEffect(() => {
-    console.log("running token");
-
-    (async () => {
-      const token = await registerForPushNotificationsAsync();
-      console.log(token);
-
-      if (token && Device.deviceName && isSignedIn) {
-        saveToken({ token: token, deviceName: Device.deviceName });
-      }
-    })();
-    console.log("end token");
-  }, []);
-
-  useEffect(() => {
     if (!isLoaded) return;
     console.log("isLoaded", isLoaded);
 
@@ -67,6 +53,17 @@ export default function AuthLayout() {
     if (!isSignedIn && !inAuthPage) {
       router.replace("/(auth)/login");
     } else if (isSignedIn && inAuthPage) {
+      console.log("running token");
+
+      (async () => {
+        const token = await registerForPushNotificationsAsync();
+        console.log(token);
+
+        if (token && Device.deviceName && isSignedIn) {
+          saveToken({ token: token, deviceName: Device.deviceName });
+        }
+      })();
+      console.log("end token");
       router.replace("/(tabs)");
     }
   }, [isLoaded, isSignedIn, segments]);

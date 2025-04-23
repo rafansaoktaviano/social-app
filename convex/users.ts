@@ -60,7 +60,7 @@ export const getUserData = query({
           ...currentUser,
           posts: await ctx.db
             .query("posts")
-            .withIndex("by_user", (q) => q.eq("userId", currentUser._id))
+            .withIndex("by_user", (q) => q.eq("userId", currentUser._id)).order("desc")
             .collect(),
           followingCount: await ctx.db
             .query("follows")
@@ -222,7 +222,7 @@ export const handleFollow = mutation({
           title: currentUser.username || "Notifications",
           body: `${currentUser.username || "Someone"} followed you`,
           data: {
-            id: args.following,
+            id: currentUser._id,
             type: "follow",
           },
         };

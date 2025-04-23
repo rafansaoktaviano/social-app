@@ -27,7 +27,7 @@ export default function bookmarks() {
       <StatusBar barStyle={"light-content"} />
       <View>
         <View style={styles.containerHeader}>
-          <Text style={styles.headerTittle}>Bookmarks</Text>
+          <Text style={styles.headerTittle}>bookmarks</Text>
         </View>
         {bookmarks === undefined ? (
           <View

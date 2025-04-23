@@ -35,7 +35,7 @@ export default function Comments({ postId }: { postId: any }) {
           return (
             <View style={styles.containerComment}>
               <Image
-                source={user?.imageUrl}
+                source={item?.user.image}
                 style={styles.userAvatarComment}
                 contentFit="cover"
                 transition={200}
